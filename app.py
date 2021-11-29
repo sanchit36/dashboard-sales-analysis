@@ -107,8 +107,8 @@ if (len(city) > 0) and (len(customerType) > 0):
 
     sales_product_line = px.bar(
         df_selection,
-        y="Product line",
-        x="gross income",
+        x="Product line",
+        y="gross income",
         title="<b>Gross Income per Product Line</b>",
         color="Gender",
         color_discrete_map={
@@ -117,9 +117,11 @@ if (len(city) > 0) and (len(customerType) > 0):
         },
         template="plotly_white",
         barmode="group",
+        facet_col="Customer_type",
         labels={
             "Product line": "Product Line",
-            "gross income": "Gross Income"
+            "gross income": "Gross Income",
+            "Customer_type": "Customer Type",
         },
     )
     sales_product_line.update_layout(
@@ -154,8 +156,59 @@ if (len(city) > 0) and (len(customerType) > 0):
         xaxis=(dict(showgrid=False)),
     )
 
+    # Ratings
+    ratings = px.bar(
+        df_selection,
+        x="Product line",
+        y="Rating",
+        title="<b>Rating per Product Line</b>",
+        color="Gender",
+        color_discrete_map={
+            'Female': 'royalblue',
+            'Male': 'darkblue'
+        },
+        template="plotly_white",
+        barmode="group",
+        facet_col="Customer_type",
+        facet_row="City",
+        labels={
+            "Product line": "Product Line",
+            "gross income": "Gross Income",
+            "Customer_type": "Customer Type",
+        },
+    )
+    ratings.update_layout(
+        plot_bgcolor="rgba(0,0,0,0)",
+        xaxis=(dict(showgrid=False)),
+        showlegend=False,
+    )
+
     c1, c2, c3 = st.columns(3)
     c1.plotly_chart(sales_gender_city, use_container_width=True)
+    with c2:
+        # Payment
+        options = st.multiselect(
+            'Select a gender',
+            df['Gender'].unique(),
+            df['Gender'].unique(),
+        )
+        new_df = df.query('Gender == @options')
+        pie_payment = px.pie(
+            new_df,
+            names="Payment",
+            values="gross income",
+            title="<b>Payment Type vs Gender</b>",
+            hover_data=['Quantity'],
+            color="Payment",
+            color_discrete_map={
+                'Cash': 'royalblue',
+                'Ewallet': 'darkblue',
+                'Credit card': 'cyan',
+            },
+            template="plotly_white",
+        )
+        st.plotly_chart(pie_payment, use_container_width=True)
+    c3.plotly_chart(ratings, use_container_width=True)
 
 else:
     st.text("Please provide valid input")

@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from components import get_sidebar
-import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="Sales Dashboard",

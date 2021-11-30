@@ -4,7 +4,7 @@ A sales analysis dashboard built with streamlit and plotly for data science proj
 
 ## Screenshot
 
-<img src="/screenshot/Dashboard.png" alt="Dashboard" />
+<img src="https://raw.githubusercontent.com/sanchit36/dashboard-sales-analysis/master/screenshot/Dashboard.png" alt="Dashboard" />
 
 ## Dataset
 

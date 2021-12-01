@@ -1,9 +1,8 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import plotly.graph_objects as go
 
-from components import get_sidebar
+from components import get_sidebar, getKpi
 
 st.set_page_config(
     page_title="Sales Dashboard",
@@ -22,8 +21,6 @@ def get_data_from_csv():
 
 df = get_data_from_csv()
 
-df.head()
-
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
 elements = [
@@ -41,7 +38,10 @@ elements = [
 [city, customerType] = get_sidebar(st, df, elements)
 
 # ---- MAINPAGE ----
-st.markdown("# :bar_chart: Sales Dashboard")
+st.markdown('''
+# :bar_chart: Sales Dashboard
+**Developed By: Sanchit Bhadgal**
+''')
 
 if (len(city) > 0) and (len(customerType) > 0):
     df_selection = df.query("City == @city & Customer_type == @customerType")
@@ -54,14 +54,11 @@ if (len(city) > 0) and (len(customerType) > 0):
 
     left_column, middle_column, right_column = st.columns(3)
     with left_column:
-        st.subheader("Total Sales:")
-        st.subheader(f"US $ {total_sales:,}")
+        getKpi(st, "Total Sales:", f"US $ {total_sales:,}")
     with middle_column:
-        st.subheader("Average Rating:")
-        st.subheader(f"{average_rating} {star_rating}")
+        getKpi(st, "Average Rating:", f"{average_rating} {star_rating}")
     with right_column:
-        st.subheader("Average Sales Per Transaction:")
-        st.subheader(f"US $ {average_sale_by_transaction:,}")
+        getKpi(st, "Average Sales Per Transaction:", f"US $ {average_sale_by_transaction:,}")
 
     st.markdown("""---""")
 
@@ -220,18 +217,19 @@ if (len(city) > 0) and (len(customerType) > 0):
     c3.plotly_chart(ratings, use_container_width=True)
 
     # Line Graph
-
+    c1, c2 = st.columns(2)
     df_hours_group = df_selection.groupby(["Gender", "hour"]).sum().reset_index()
     sales_per_hour = px.line(
         df_hours_group,
         x="hour",
         y="gross income",
-        title="<b>Gross income hour wise</b>",
+        title="<b>Gross Income Hour Wise</b>",
         color="Gender",
         color_discrete_map={
             'Female': 'royalblue',
             'Male': 'darkblue'
         },
+        template="plotly_white"
     )
     sales_per_hour.update_traces(hoverinfo='text+name', mode='lines+markers')
     sales_per_hour.update_layout(
@@ -239,8 +237,7 @@ if (len(city) > 0) and (len(customerType) > 0):
         xaxis=(dict(showgrid=False)),
         yaxis=(dict(showgrid=False)),
     )
-
-    st.plotly_chart(sales_per_hour, use_container_width=True)
+    c1.plotly_chart(sales_per_hour, use_container_width=True)
 
 
 else:

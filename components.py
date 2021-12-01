@@ -10,3 +10,7 @@ def get_sidebar(st, df, elements):
         if not len(comp):
             st.sidebar.error(element['error'])
     return components
+
+def getKpi(st,title, subtitle):
+    st.subheader(title)
+    st.subheader(subtitle)

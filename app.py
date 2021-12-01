@@ -1,6 +1,8 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import plotly.graph_objects as go
+
 from components import get_sidebar
 
 st.set_page_config(
@@ -14,8 +16,7 @@ st.set_page_config(
 @st.cache
 def get_data_from_csv():
     df = pd.read_csv("./supermarket_sales.csv")
-    # Add 'month' column to dataframe
-    df["month"] = pd.to_datetime(df["Date"]).dt.month
+    df["hour"] = pd.to_datetime(df["Time"]).dt.hour
     return df
 
 
@@ -64,7 +65,7 @@ if (len(city) > 0) and (len(customerType) > 0):
 
     st.markdown("""---""")
 
-    # pie chat for gender
+    # Pie Chart For Gender
     pie_gender = px.pie(
         df_selection,
         values="gross income",
@@ -82,8 +83,11 @@ if (len(city) > 0) and (len(customerType) > 0):
         template="plotly_white",
     )
 
+
+    # Bar Chart for Customer Type
+    df_customer = df_selection.groupby(['Gender','Customer_type']).sum().reset_index()
     bar_gender_customer = px.bar(
-        df_selection,
+        df_customer,
         x="Customer_type",
         y="gross income",
         title="<b>Gross Income vs Customer Type</b>",
@@ -104,8 +108,10 @@ if (len(city) > 0) and (len(customerType) > 0):
         yaxis=(dict(showgrid=False)),
     )
 
+    # Sales Product line
+    df_pl = df_selection.groupby(['Gender', 'Product line','Customer_type']).sum().reset_index()
     sales_product_line = px.bar(
-        df_selection,
+        df_pl,
         x="Product line",
         y="gross income",
         title="<b>Gross Income per Product Line</b>",
@@ -133,8 +139,11 @@ if (len(city) > 0) and (len(customerType) > 0):
     c2.plotly_chart(bar_gender_customer, use_container_width=True)
     c3.plotly_chart(sales_product_line, use_container_width=True)
 
+
+    # Sales per city
+    df_city = df_selection.groupby(['Gender', 'City']).sum().reset_index()
     sales_gender_city = px.bar(
-        df_selection,
+        df_city,
         x="City",
         y="gross income",
         title="<b>Gross Income vs City</b>",
@@ -156,8 +165,9 @@ if (len(city) > 0) and (len(customerType) > 0):
     )
 
     # Ratings
+    df_rating = df_selection.groupby(['Gender', 'Product line', 'City', 'Customer_type']).mean().reset_index()
     ratings = px.bar(
-        df_selection,
+        df_rating,
         x="Product line",
         y="Rating",
         title="<b>Rating per Product Line</b>",
@@ -208,6 +218,30 @@ if (len(city) > 0) and (len(customerType) > 0):
         )
         st.plotly_chart(pie_payment, use_container_width=True)
     c3.plotly_chart(ratings, use_container_width=True)
+
+    # Line Graph
+
+    df_hours_group = df_selection.groupby(["Gender", "hour"]).sum().reset_index()
+    sales_per_hour = px.line(
+        df_hours_group,
+        x="hour",
+        y="gross income",
+        title="<b>Gross income hour wise</b>",
+        color="Gender",
+        color_discrete_map={
+            'Female': 'royalblue',
+            'Male': 'darkblue'
+        },
+    )
+    sales_per_hour.update_traces(hoverinfo='text+name', mode='lines+markers')
+    sales_per_hour.update_layout(
+        plot_bgcolor="rgba(0,0,0,0)",
+        xaxis=(dict(showgrid=False)),
+        yaxis=(dict(showgrid=False)),
+    )
+
+    st.plotly_chart(sales_per_hour, use_container_width=True)
+
 
 else:
     st.text("Please provide valid input")

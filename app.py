@@ -30,12 +30,17 @@ elements = [
         "error": "Please select at a city"
     },
     {
+        "label": "Select the Product line:",
+        "feature_name": "Product line",
+        "error": "Please select at a Product line"
+    },
+    {
         "label": "Select the Customer Type:",
         "feature_name": "Customer_type",
         "error": "Please select at least a customer type"
     },
 ]
-[city, customerType] = get_sidebar(st, df, elements)
+[city,productLine, customerType] = get_sidebar(st, df, elements)
 
 # ---- MAINPAGE ----
 st.markdown('''
@@ -43,7 +48,7 @@ st.markdown('''
 **Developed By: Sanchit Bhadgal**
 ''')
 
-if (len(city) > 0) and (len(customerType) > 0):
+if (len(city) > 0) and (len(customerType) > 0) and (len(productLine) > 0):
     df_selection = df.query("City == @city & Customer_type == @customerType")
 
     # KPIs
@@ -198,7 +203,7 @@ if (len(city) > 0) and (len(customerType) > 0):
             df['Gender'].unique(),
             df['Gender'].unique(),
         )
-        new_df = df.query('Gender == @options')
+        new_df = df_selection.query('Gender == @options')
         pie_payment = px.pie(
             new_df,
             names="Payment",
